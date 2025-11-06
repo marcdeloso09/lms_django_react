@@ -38,7 +38,7 @@ export default function useClassesBehavior(containerClass = "chat-container") {
           action,
         };
 
-        const res = await fetch("http://React_Backend.onrender.com/api/save-behavior/", {
+        const res = await fetch("http://lms_django_react.onrender.com/api/save-behavior/", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
