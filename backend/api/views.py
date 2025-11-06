@@ -108,7 +108,7 @@ def save_behavior(request):
         user=user,
         participant_id=participant_id,
         scroll_velocity=data.get("scroll_velocity", 0),
-        hover_duration=data.get("hover_duration", "0s"),
+        hover_duration=data.get("hover_duration", 0),
         click_error_rate=data.get("click_error_rate", 0),
         focus_mode=data.get("focus_mode", "Inactive"),
         action=action,
