@@ -13,9 +13,11 @@ export default function SignupLogin() {
     e.preventDefault();
     setMessage("");
 
+    const API_BASE = process.env.REACT_APP_API_URL || "http://localhost:8000/api/";
+
     const endpoint = isLogin
-      ? "http://localhost:8000/api/login/"
-      : "http://localhost:8000/api/signup/";
+      ? `${API_BASE}login/`
+      : `${API_BASE}signup/`;
 
     try {
       const res = await fetch(endpoint, {
@@ -36,7 +38,7 @@ export default function SignupLogin() {
         localStorage.setItem("userEmail", data.user.email);
 
         // Fetch participant ID before redirecting
-        const pidResponse = await fetch("http://React_Django_LMS.onrender.com/api/participant-id/", {
+        const pidResponse = await fetch(`${API_BASE}participant-id/`, {
           headers: { Authorization: `Bearer ${data.access}` },
         });
 
