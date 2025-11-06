@@ -22,43 +22,42 @@ export default function useUserBehavior(containerClass = "chat-container") {
   const activeStartTimeRef = useRef(null);
 
   // --- SAVE BEHAVIOR (moved up so it’s defined before being used)
-  const saveBehavior = useCallback(
-    async () => {
-      try {
-        const token = localStorage.getItem("accessToken");
-        const participantId = localStorage.getItem("participantId");
-        if (!token || !participantId) return;
+  const saveBehavior = useCallback(async () => {
+  try {
+    const token = localStorage.getItem("accessToken");
+    const participantId = localStorage.getItem("participantId");
+    if (!token || !participantId) return;
 
-        const payload = {
-          participant_id: participantId,
-          scroll_velocity: scrollVelocity,
-          hover_duration: `${hoverDuration}s`,
-          click_error_rate: clickErrorRate,
-          focus_mode: focusMode ? "Active" : "Inactive",
-          action,
-        };
+    const payload = {
+      participant_id: participantId,
+      scroll_velocity: scrollVelocity,
+      hover_duration: `${hoverDuration}s`,
+      click_error_rate: clickErrorRate,
+      focus_mode: focusMode ? "Active" : "Inactive",
+      action,
+    };
 
-        const res = await fetch("http://lms_django_react.onrender.com/api/save-behavior/", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(payload),
-        });
+    const API_BASE = process.env.REACT_APP_API_URL || "http://localhost:8000/api/";
 
-        if (!res.ok) {
-          const errText = await res.text();
-          console.error("❌ Failed to save behavior:", res.status, errText);
-        } else {
-          console.log("✅ Behavior saved:", payload);
-        }
-      } catch (err) {
-        console.error("⚠️ Error in saveBehavior:", err);
-      }
-    },
-    [scrollVelocity, hoverDuration, clickErrorRate, focusMode, action]
-  );
+    const res = await fetch(`${API_BASE}save-behavior/`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!res.ok) {
+      const errText = await res.text();
+      console.error("❌ Failed to save behavior:", res.status, errText);
+    } else {
+      console.log("✅ Behavior saved:", payload);
+    }
+  } catch (err) {
+    console.error("⚠️ Error in saveBehavior:", err);
+  }
+}, [scrollVelocity, hoverDuration, clickErrorRate, focusMode, action]);
 
   // --- ENLARGE MODE ---
   const triggerEnlargeMode = useCallback(() => {
