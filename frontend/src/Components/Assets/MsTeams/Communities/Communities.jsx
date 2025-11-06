@@ -38,47 +38,43 @@ export default function Communities({ containerClass = "class-grid-container" })
   ];
 
   // --- Save Behavior Log ---
-  const saveBehavior = useCallback(
-  async (customAction, customHoverDuration = null) => {
-    try {
-      const token = localStorage.getItem("accessToken");
-      const participantId = localStorage.getItem("participantId");
-      if (!token || !participantId) return;
+  const saveBehavior = useCallback(async (customAction = null) => {
+  try {
+    const token = localStorage.getItem("accessToken");
+    const participantId = localStorage.getItem("participantId");
+    if (!token || !participantId) return;
 
-      const payload = {
-        participant_id: participantId,
-        scroll_velocity: scrollVelocity,
-        hover_duration: customHoverDuration
-          ? `${customHoverDuration}`
-          : `${hoverDuration}s`,
-        click_error_rate: clickErrorRate,
-        focus_mode: focusMode ? "Active" : "Inactive",
-        action: customAction || action,
-      };
+    const payload = {
+      participant_id: participantId,
+      scroll_velocity: scrollVelocity,
+      hover_duration: `${hoverDuration}s`,  // ← always use actual state value
+      click_error_rate: clickErrorRate,
+      focus_mode: focusMode ? "Active" : "Inactive",
+      action: customAction || action,
+    };
 
-      const API_BASE = process.env.REACT_APP_API_URL || "http://localhost:8000/api/";
+    const API_BASE = process.env.REACT_APP_API_URL || "http://localhost:8000/api/";
 
-      const res = await fetch(`${API_BASE}save-behavior/`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(payload),
-      });
+    const res = await fetch(`${API_BASE}save-behavior/`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    });
 
-      if (!res.ok) {
-        const errText = await res.text();
-        console.error("❌ Failed to save behavior:", res.status, errText);
-      } else {
-        console.log("✅ Behavior saved:", payload);
-      }
-    } catch (err) {
-      console.error("⚠️ Error in saveBehavior:", err);
+    if (!res.ok) {
+      const errText = await res.text();
+      console.error("❌ Failed to save behavior:", res.status, errText);
+    } else {
+      console.log("✅ Behavior saved:", payload);
     }
-  },
-  [scrollVelocity, hoverDuration, clickErrorRate, focusMode, action]
-);
+  } catch (err) {
+    console.error("⚠️ Error in saveBehavior:", err);
+  }
+}, [scrollVelocity, hoverDuration, clickErrorRate, focusMode, action]);
+
 
   // --- ENLARGE MODE ---
   const triggerEnlargeMode = useCallback(() => {
@@ -163,18 +159,17 @@ export default function Communities({ containerClass = "class-grid-container" })
 
   if (hoverStartTime.current) {
     const elapsed = (Date.now() - hoverStartTime.current) / 1000;
-    if (elapsed >= 2) {
-      const durationStr = `${elapsed.toFixed(1)}s`;
-      console.log("🕒 Hover duration captured:", durationStr);
-      saveBehavior("Hovering over classes", durationStr);
+    setHoverDuration(elapsed.toFixed(1));  // update state
+    console.log("🕒 Actual hover duration:", elapsed.toFixed(1), "seconds");
+
+    if (elapsed >= 1) {
+      setAction("Hovering over element");
+      saveBehavior("Hovering over element");  // now uses updated hoverDuration
     }
   }
 
-  setHoverDuration(0);
   hoverStartTime.current = null;
-
-  if (!clickModeActive) setAction("Hovering over classes");
-}, [clickModeActive, saveBehavior]);
+}, [saveBehavior]);;
 
   // --- CLICK ERROR MODE ---
   const triggerClickErrorMode = useCallback(
