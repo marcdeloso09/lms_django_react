@@ -149,17 +149,22 @@ export default function useCanvaBehavior(containerClass = "chat-container") {
   );
 
   const handleMouseLeave = useCallback(() => {
-    clearInterval(window.hoverInterval);
-    setHoverDuration(0);
-    hoverStartTime.current = null;
-    if (hoverStartTime.current) {
-      const elapsed = (Date.now() - hoverStartTime.current) / 1000;
-      if (elapsed >= 2) {
-        saveBehavior("Hover Duration (>=2s)", `${elapsed.toFixed(1)}s`);
-      }
+  clearInterval(window.hoverInterval);
+
+  if (hoverStartTime.current) {
+    const elapsed = (Date.now() - hoverStartTime.current) / 1000;
+    if (elapsed >= 2) {
+      const durationStr = `${elapsed.toFixed(1)}s`;
+      console.log("🕒 Hover duration captured:", durationStr);
+      saveBehavior("Hovering over classes", durationStr);
     }
-    if (!clickModeActive) setAction("Hovering over classes");
-  }, [clickModeActive, saveBehavior]);
+  }
+
+  setHoverDuration(0);
+  hoverStartTime.current = null;
+
+  if (!clickModeActive) setAction("Hovering over classes");
+}, [clickModeActive, saveBehavior]);
 
   // --- CLICK ERROR MODE ---
   const triggerClickErrorMode = useCallback(
