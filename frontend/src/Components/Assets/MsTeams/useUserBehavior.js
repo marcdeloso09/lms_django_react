@@ -22,43 +22,47 @@ export default function useUserBehavior(containerClass = "chat-container") {
   const activeStartTimeRef = useRef(null);
 
   // --- SAVE BEHAVIOR (moved up so it’s defined before being used)
-  const saveBehavior = useCallback(async () => {
-  try {
-    const token = localStorage.getItem("accessToken");
-    const participantId = localStorage.getItem("participantId");
-    if (!token || !participantId) return;
+ const saveBehavior = useCallback(
+  async (customAction, customHoverDuration = null) => {
+    try {
+      const token = localStorage.getItem("accessToken");
+      const participantId = localStorage.getItem("participantId");
+      if (!token || !participantId) return;
 
-    const payload = {
-      participant_id: participantId,
-      scroll_velocity: scrollVelocity,
-      hover_duration: `${hoverDuration}s`,
-      click_error_rate: clickErrorRate,
-      focus_mode: focusMode ? "Active" : "Inactive",
-      action,
-    };
+      const payload = {
+        participant_id: participantId,
+        scroll_velocity: scrollVelocity,
+        hover_duration: customHoverDuration
+          ? `${customHoverDuration}`
+          : `${hoverDuration}s`,
+        click_error_rate: clickErrorRate,
+        focus_mode: focusMode ? "Active" : "Inactive",
+        action: customAction || action,
+      };
 
-    const API_BASE = process.env.REACT_APP_API_URL || "http://localhost:8000/api/";
+      const API_BASE = process.env.REACT_APP_API_URL || "http://localhost:8000/api/";
 
-    const res = await fetch(`${API_BASE}save-behavior/`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(payload),
-    });
+      const res = await fetch(`${API_BASE}save-behavior/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
 
-    if (!res.ok) {
-      const errText = await res.text();
-      console.error("❌ Failed to save behavior:", res.status, errText);
-    } else {
-      console.log("✅ Behavior saved:", payload);
+      if (!res.ok) {
+        const errText = await res.text();
+        console.error("❌ Failed to save behavior:", res.status, errText);
+      } else {
+        console.log("✅ Behavior saved:", payload);
+      }
+    } catch (err) {
+      console.error("⚠️ Error in saveBehavior:", err);
     }
-  } catch (err) {
-    console.error("⚠️ Error in saveBehavior:", err);
-  }
-}, [scrollVelocity, hoverDuration, clickErrorRate, focusMode, action]);
-
+  },
+  [scrollVelocity, hoverDuration, clickErrorRate, focusMode, action]
+);
   // --- ENLARGE MODE ---
   const triggerEnlargeMode = useCallback(() => {
     const container = document.querySelector(`.${containerClass}`);
@@ -149,11 +153,13 @@ export default function useUserBehavior(containerClass = "chat-container") {
     setHoverDuration(0);
     hoverStartTime.current = null;
     if (hoverStartTime.current) {
-      const elapsed = (Date.now() - hoverStartTime.current) / 1000;
-      if (elapsed >= 2) {
-        saveBehavior("Hover Duration (>=2s)", `${elapsed.toFixed(1)}s`);
+        const elapsed = (Date.now() - hoverStartTime.current) / 1000;
+        if (elapsed >= 2) {
+          const durationStr = `${elapsed.toFixed(1)}s`;
+          console.log("🕒 Hover duration captured:", durationStr);
+          saveBehavior("Hovering over classes", durationStr);
+        }
       }
-    }
     if (!clickModeActive) setAction("Hovering over classes");
   }, [clickModeActive, saveBehavior]);
 
