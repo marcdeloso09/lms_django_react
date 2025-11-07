@@ -116,7 +116,7 @@ export default function Communities({ containerClass = "class-grid-container" })
         clearTimeout(window.scrollDelayTimeout);
         window.scrollDelayTimeout = setTimeout(() => {
           setAction("Slow Scroll Detected");
-          saveBehavior();
+          saveBehavior("Slow Scroll Detected");
           triggerEnlargeMode();
         }, 2000);
       }
@@ -163,8 +163,8 @@ export default function Communities({ containerClass = "class-grid-container" })
     console.log("🕒 Actual hover duration:", elapsed.toFixed(1), "seconds");
 
     if (elapsed >= 1) {
-      setAction("Hovering over element");
-      saveBehavior("Hovering over element");  // now uses updated hoverDuration
+      setAction("Hovering over classes");
+      saveBehavior("Hovering over classes");  // now uses updated hoverDuration
     }
   }
 
@@ -179,7 +179,7 @@ export default function Communities({ containerClass = "class-grid-container" })
 
       setClickModeActive(true);
       setAction("Click Error Mode");
-      saveBehavior();
+      saveBehavior("Click Error Mode");
       container.classList.add("click-error-enlarged");
 
       clearTimeout(clickModeTimeoutRef.current);
@@ -204,7 +204,7 @@ export default function Communities({ containerClass = "class-grid-container" })
           document.body.classList.remove("dim-background");
           setIsDimmed(false);
           setAction("UI Restored (User Idle)");
-          saveBehavior();
+          saveBehavior("UI Restored (User Idle)");
         }
       }, 10000);
     };
@@ -218,8 +218,8 @@ export default function Communities({ containerClass = "class-grid-container" })
       if (elapsed >= 3000 && !isDimmed) {
         document.body.classList.add("dim-background");
         setIsDimmed(true);
-        setAction("UI Dimmed (1 minute active)");
-        saveBehavior();
+        setAction("UI Dimmed");
+        saveBehavior("UI Dimmed");
       }
       resetIdleTimer();
     };

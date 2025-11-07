@@ -101,7 +101,7 @@ export default function useCanvaBehavior(containerClass = "chat-container") {
           // Save only once per trigger
           if (!window.scrollBehaviorSaved) {
             setAction("Slow Scroll Detected");
-            saveBehavior("Scroll Velocity (<30px/s)", cappedVelocity.toFixed(1));
+            saveBehavior("Slow Scroll Detected", cappedVelocity.toFixed(1));
             triggerEnlargeMode();
             window.scrollBehaviorSaved = true;
             setTimeout(() => (window.scrollBehaviorSaved = false), 4000); // reset after 4s
@@ -152,8 +152,8 @@ export default function useCanvaBehavior(containerClass = "chat-container") {
     console.log("🕒 Actual hover duration:", elapsed.toFixed(1), "seconds");
 
     if (elapsed >= 1) {
-      setAction("Hovering over element");
-      saveBehavior("Hovering over element");  // now uses updated hoverDuration
+      setAction("Hovering over classes");
+      saveBehavior("Hovering over classes");  // now uses updated hoverDuration
     }
   }
 
@@ -168,7 +168,7 @@ export default function useCanvaBehavior(containerClass = "chat-container") {
 
       setClickModeActive(true);
       setAction("Click Error Mode");
-      saveBehavior("Click Error Rate Trigger (>15%)", `${rate.toFixed(1)}%`);
+      saveBehavior("Click Error Mode", `${rate.toFixed(1)}%`);
       container?.classList.add("click-error-enlarged");
 
       clearTimeout(clickModeTimeoutRef.current);
@@ -207,7 +207,7 @@ export default function useCanvaBehavior(containerClass = "chat-container") {
         document.body.classList.add("dim-background");
         setIsDimmed(true);
         setAction("UI Dimmed");
-        saveBehavior("Action", "UI Dimmed");
+        saveBehavior("UI Dimmed");
       }
       resetIdleTimer();
     };
