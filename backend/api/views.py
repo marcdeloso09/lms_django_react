@@ -93,25 +93,18 @@ def save_behavior(request):
     existing_behavior = UserBehavior.objects.filter(user=user).first()
     participant_id = existing_behavior.participant_id if existing_behavior else f"P{user.id:03d}"
 
-    VALID_ACTIONS = [
-        "Normal", "Normal Layout", "Slow Scroll Detected", "Hovering over classes",
-        "Focus View", "Click Error Mode", "UI Dimmed", "UI Restored (User Idle)",
-        "Enlarge Mode", "Account Created",
-    ]
 
     action = data.get("action", "Normal Layout")
-    if action not in VALID_ACTIONS:
-        action = "Normal"
-
-    # Save the real-time behavior
-    UserBehavior.objects.create(
-        user=user,
-        participant_id=participant_id,
-        scroll_velocity=data.get("scroll_velocity", 0),
-        hover_duration=data.get("hover_duration", "0s"),
-        click_error_rate=data.get("click_error_rate", 0),
-        focus_mode=data.get("focus_mode", "Inactive"),
-        action=action,
-    )
-
-    return Response({"message": "Behavior saved successfully"}, status=201)
+    
+    if action != "Normal":
+        UserBehavior.objects.create(
+            user=user,
+            participant_id=participant_id,
+            scroll_velocity=data.get("scroll_velocity", 0),
+            hover_duration=data.get("hover_duration", "0s"),
+            click_error_rate=data.get("click_error_rate", 0),
+            focus_mode=data.get("focus_mode", "Inactive"),
+            action=action,
+        )
+        
+    return Response({"message": f"Behavior '{action}' saved successfully"}, status=201)
