@@ -89,22 +89,47 @@ def save_behavior(request):
     if not data:
         return Response({"error": "Empty data"}, status=400)
 
-    # Get the user’s assigned participant_id
+    # Retrieve the participant_id assigned to this user
     existing_behavior = UserBehavior.objects.filter(user=user).first()
     participant_id = existing_behavior.participant_id if existing_behavior else f"P{user.id:03d}"
 
+    # Define the canonical action categories
+    VALID_ACTIONS = [
+        "Normal", "Normal Layout", "Slow Scroll Detected", "Hovering over classes",
+        "Focus View", "Click Error Mode", "UI Dimmed", "UI Restored (User Idle)",
+        "Enlarge Mode", "Account Created",
+    ]
 
-    action = data.get("action", "Normal Layout")
-    
-    if action != "Normal":
-        UserBehavior.objects.create(
-            user=user,
-            participant_id=participant_id,
-            scroll_velocity=data.get("scroll_velocity", 0),
-            hover_duration=data.get("hover_duration", "0s"),
-            click_error_rate=data.get("click_error_rate", 0),
-            focus_mode=data.get("focus_mode", "Inactive"),
-            action=action,
-        )
-        
-    return Response({"message": f"Behavior '{action}' saved successfully"}, status=201)
+    # Map raw frontend actions to the canonical categories
+    raw_action = data.get("action", "Normal Layout")
+    action_map = {
+        "Hovering over element": "Hovering over classes",
+        "Scroll Velocity (<30px/s)": "Slow Scroll Detected",
+        "Click Error Rate Trigger (>15%)": "Click Error Mode",
+        "UI Dimmed": "UI Dimmed",
+        "UI Restored (User Idle)": "UI Restored (User Idle)",
+        "Focus View": "Focus View",
+        "Enlarge Mode": "Enlarge Mode",
+        "Action": "Normal Layout",   # fallback
+    }
+
+    # Convert any frontend variation to a valid action
+    action = action_map.get(raw_action, raw_action)
+    if action not in VALID_ACTIONS:
+        action = "Normal"
+
+    # (Optional) debug log
+    print(f"🧠 Behavior recorded for {user.username}: {action}")
+
+    # Save the behavior record
+    UserBehavior.objects.create(
+        user=user,
+        participant_id=participant_id,
+        scroll_velocity=data.get("scroll_velocity", 0),
+        hover_duration=data.get("hover_duration", "0s"),
+        click_error_rate=data.get("click_error_rate", 0),
+        focus_mode=data.get("focus_mode", "Inactive"),
+        action=action,
+    )
+
+    return Response({"message": "Behavior saved successfully"}, status=201)
