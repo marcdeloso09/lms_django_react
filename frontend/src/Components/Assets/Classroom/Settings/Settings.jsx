@@ -3,68 +3,64 @@ import "./Settings.css";
 
 export default function Settings() {
   const [behaviors, setBehaviors] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // Load behavior data from localStorage
   useEffect(() => {
-    const loadData = () => {
-      const data = JSON.parse(localStorage.getItem("userBehaviors")) || [];
-      setBehaviors(data);
+    const fetchBehaviors = async () => {
+      const token = localStorage.getItem("accessToken");
+      if (!token) return;
+
+      try {
+        const API_BASE = process.env.REACT_APP_API_URL || "http://localhost:8000/api/";
+        const res = await fetch(`${API_BASE}get-behaviors/`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const data = await res.json();
+        setBehaviors(data);
+      } catch (err) {
+        console.error("Error fetching behaviors:", err);
+      } finally {
+        setLoading(false);
+      }
     };
 
-    loadData();
-
-    // Auto-refresh every second for real-time updates
-    const interval = setInterval(loadData, 1000);
-    return () => clearInterval(interval);
+    fetchBehaviors();
   }, []);
 
-  // Clear all saved behavior data
-  const handleClearData = () => {
-    localStorage.removeItem("userBehaviors");
-    setBehaviors([]);
-  };
+  if (loading) return <p>Loading user behaviors...</p>;
 
   return (
     <div className="settings-container">
-      <h2>User Behavior Monitor</h2>
+      <h2>User Behavior Log</h2>
 
-      {/* Saved Behavior Table */}
-      <div className="behavior-log">
-        <h3>🕒 Saved Behavior Data</h3>
-        {behaviors.length === 0 ? (
-          <p>No recorded behaviors yet.</p>
-        ) : (
-          <table className="behavior-table">
-            <thead>
-              <tr>
-                <th>Scroll Velocity (&lt;30px/s)</th>
-                <th>Hover Duration (&lt;3s)</th>
-                <th>Click Error Rate (&lt;15%)</th>
-                <th>Focus Mode</th>
-                <th>Action</th>
-                <th>Date and Time Recorded</th>
+      {behaviors.length === 0 ? (
+        <p>No recorded behaviors yet.</p>
+      ) : (
+        <table className="behavior-table">
+          <thead>
+            <tr>
+              <th>Scroll Velocity</th>
+              <th>Hover Duration</th>
+              <th>Click Error Rate</th>
+              <th>Focus Mode</th>
+              <th>Action</th>
+              <th>Timestamp</th>
+            </tr>
+          </thead>
+          <tbody>
+            {behaviors.map((b, index) => (
+              <tr key={index}>
+                <td>{b.scroll_velocity}</td>
+                <td>{b.hover_duration}</td>
+                <td>{b.click_error_rate}</td>
+                <td>{b.focus_mode}</td>
+                <td>{b.action}</td>
+                <td>{b.timestamp}</td>
               </tr>
-            </thead>
-            <tbody>
-              {behaviors.map((b, index) => (
-                <tr key={index}>
-                  <td>{b.key.includes("Scroll") ? b.value : "-"}</td>
-                  <td>{b.key.includes("Hover") ? b.value : "-"}</td>
-                  <td>{b.key.includes("Click") ? b.value : "-"}</td>
-                  <td>{b.key.includes("Focus") ? b.value : "-"}</td>
-                  <td>{b.key.includes("Action") ? b.value : "-"}</td>
-                  <td>{b.timestamp}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </div>
-
-      {/* Clear Data Button */}
-      <button className="clear-button" onClick={handleClearData}>
-        🧹 Clear All Data
-      </button>
+            ))}
+          </tbody>
+        </table>
+      )}
     </div>
   );
 }

@@ -133,3 +133,22 @@ def save_behavior(request):
     )
 
     return Response({"message": "Behavior saved successfully"}, status=201)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_user_behaviors(request):
+    user = request.user
+    behaviors = UserBehavior.objects.filter(user=user).order_by('-timestamp')
+
+    serialized = [
+        {
+            "scroll_velocity": b.scroll_velocity,
+            "hover_duration": b.hover_duration,
+            "click_error_rate": b.click_error_rate,
+            "focus_mode": b.focus_mode,
+            "action": b.action,
+            "timestamp": b.timestamp.strftime("%Y-%m-%d %H:%M:%S"),
+        }
+        for b in behaviors
+    ]
+    return Response(serialized)

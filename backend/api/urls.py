@@ -8,4 +8,6 @@ urlpatterns = [
     path('login/', views.login_user, name='login'),
     path('participant-id/', views.get_participant_id, name='get_participant_id'),  # 👈 Add this
     path('save-behavior/', views.save_behavior, name='save_behavior'), 
+    path('api/get-behaviors/', views.get_user_behaviors, name='get_user_behaviors'),
+
 ]
