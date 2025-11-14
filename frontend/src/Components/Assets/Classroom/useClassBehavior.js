@@ -147,7 +147,6 @@ useEffect(() => {
   return () => window.removeEventListener("scroll", handleScroll);
 }, [scrollVelocity, triggerEnlargeMode, saveBehavior]);
 
-
   // --- HOVER HANDLERS ---
   const handleMouseEnter = useCallback(
     (id) => {
