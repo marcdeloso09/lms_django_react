@@ -80,7 +80,6 @@ useEffect(() => {
   const handleScroll = () => {
     const currentY = window.scrollY;
     const currentTime = Date.now();
-
     const dy = Math.abs(currentY - lastScrollY.current);
     const dt = (currentTime - lastTime.current) / 1000;
 
@@ -89,23 +88,27 @@ useEffect(() => {
     // --- HARD CAP at 100 px/s ---
     rawVelocity = Math.min(rawVelocity, 100);
 
-    // --- Smooth easing ---
-    const smoothingFactor = 0.05; // slower smoothing (your request)
+    // --- SLOWER SMOOTHING ---
+    const maxVelocity = 50;
+    const smoothingFactor = 0.05;
+
     const easedVelocity =
-      scrollVelocity + (rawVelocity - scrollVelocity) * smoothingFactor;
+      rawVelocity > maxVelocity
+        ? scrollVelocity + (maxVelocity - scrollVelocity) * smoothingFactor
+        : scrollVelocity + (rawVelocity - scrollVelocity) * smoothingFactor;
 
     setScrollVelocity(easedVelocity);
 
     lastScrollY.current = currentY;
     lastTime.current = currentTime;
 
-    // --- Reset velocity after scroll burst ---
+    // --- Reset per scroll burst ---
     clearTimeout(window.scrollResetTimeout);
     window.scrollResetTimeout = setTimeout(() => {
       setScrollVelocity(0);
     }, 2000);
 
-    // --- Cancel ANY pending slow scroll trigger if fast scroll occurs ---
+    // --- Cancel pending slow scroll trigger when velocity rises ---
     if (easedVelocity >= 30) {
       clearTimeout(window.slowScrollTimeout);
       return;
@@ -116,15 +119,18 @@ useEffect(() => {
       clearTimeout(window.slowScrollTimeout);
 
       window.slowScrollTimeout = setTimeout(async () => {
-
-        // FINAL CHECK: Must STILL be slow after 2s
+        // FINAL CHECK
         if (scrollVelocity >= 30) return;
 
         setAction("Slow Scroll Detected");
 
-        // save only once per trigger
+        // Save only once per trigger period
         if (!window.scrollBehaviorSaved) {
-          await saveBehavior("Slow Scroll Detected");
+          await saveBehavior(
+            "Scroll Velocity (<30px/s)",
+            `${easedVelocity.toFixed(1)} px/s`
+          );
+
           triggerEnlargeMode();
 
           window.scrollBehaviorSaved = true;
