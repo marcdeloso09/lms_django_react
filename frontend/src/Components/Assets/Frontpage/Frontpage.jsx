@@ -12,7 +12,7 @@ export default function Frontpage() {
 
   const tips = [
     "Welcome! This interface adapts based on how you interact through scroll, hover and click. this simulation project implemented this behaviors only on the dashboard and inside the contents of each courses/classes for now which aims to reduce the visual overload of contents on Learning Platforms faced by students.",
-    "Slow Scroll Speed (<30 px/s): For example, you tend to do a slow reading or navigating inside the platform to properly check everything, The UI will then expand by removing the sidebar to help you prioritize the main content of the page.",
+    "Slow Scroll Speed (<30 px/s): For example, you tend to do a slow reading or navigation inside the platform to properly check everything. The UI will then expand by removing the sidebar to help you prioritize the main content of the page.",
     "Hover Duration (<3s): Example for this is too many courses/classes enrolled on the platform. Hovering or pointing your mouse cursor for less than 3 seconds over courses, assignments, lessons/modules triggers Focus Mode to help you prioritize what you only want to click",
     "Click Error Rate (>15%): Example scenario where you are frustrated on so many activities and dont know where to start so you fast click on the empty parts or white spaces of the page to ease your frustration. This will then be counted as wrong clicks and when you reach 15% and above you will not be able to click anything on the sidebar helping you to focus more on the main content area.",
     "Dim Mode activates if you stay active for too long and not doing anything to help reduce visual fatigue.",
