@@ -93,7 +93,8 @@ export default function Frontpage() {
       {showTips && (
         <div className="tips-overlay">
           <div className="tips-modal">
-            <h2>Tips and Behavior Guide</h2>
+            <h2>Tips and Behavior Guide:</h2>
+            <h4>(Important Please Read)</h4>
             <p>{tips[tipIndex]}</p>
 
             <div className="tips-buttons">
