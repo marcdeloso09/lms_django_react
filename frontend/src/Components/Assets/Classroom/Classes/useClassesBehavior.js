@@ -279,7 +279,7 @@ useEffect(() => {
           : rawRate;
 
       setClickErrorRate(easedRate);
-      if (easedRate >= 14 && !clickModeActive) triggerClickErrorMode(easedRate);
+      if (easedRate >= 16 && !clickModeActive) triggerClickErrorMode(easedRate);
     };
 
     document.addEventListener("click", handleClick);

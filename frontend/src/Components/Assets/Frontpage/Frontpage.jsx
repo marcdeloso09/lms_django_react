@@ -14,7 +14,7 @@ export default function Frontpage() {
     "Welcome! This interface adapts based on how you interact through scroll, hover and click. this simulation project aims to reduce the visual overload of contents on Learning Platforms faced by students.",
     "Slow Scroll Speed (<30 px/s): Example for slow reading or navigating inside the platform, The UI will then expand by removing the sidebar to help you prioritize the main content of the page.",
     "Hovering your mouse pointer for less than 3 seconds over courses, assignments, lessons/modules triggers Focus Mode to help you prioritize what you only want to click",
-    "Click Error Rate (<15%) you will not be able to click anything on the sidebar helping you to focus more on the main content area.",
+    "Click Error Rate (>15%): Example of this is wrong/fast clicking on the empty parts or white spaces of the page. When you reach 15% and above you will not be able to click anything on the sidebar helping you to focus more on the main content area.",
     "Dim Mode activates if you stay active for too long and not doing anything to help reduce visual fatigue.",
     "You can check this behavior indicators on the tracking panel on the lower right side of each LMS (Learning Management Systems)",
     "Refresh this page to open the tips again.",
