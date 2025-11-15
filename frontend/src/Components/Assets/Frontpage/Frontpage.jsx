@@ -11,7 +11,7 @@ export default function Frontpage() {
   const [tipIndex, setTipIndex] = React.useState(0);
 
   const tips = [
-    "Welcome! This interface adapts based on how you interact through scroll, hover and click.",
+    "Welcome! This interface adapts based on how you interact through scroll, hover and click. this project aims to reduce the visual overload of contents on Learning Platforms faced by students",
     "Slow Scroll Speed (<30 px/s): The UI expands and removes the sidebar to help reduce visual load.",
     "Hovering for less than 3 seconds over courses, assignments, lessons/modules triggers Focus Mode to help you prioritize what you only want to click.",
     "Click Error Rate (<15%) you will not be able to click anything on the sidebar helping you to focus more on the main content area.",
