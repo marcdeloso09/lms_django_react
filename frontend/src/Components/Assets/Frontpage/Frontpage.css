@@ -104,10 +104,11 @@
 .tips-buttons {
   margin-top: 20px;
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
 }
 
-.skip-btn, .next-btn {
+.next-btn {
+  width: 45%;
   padding: 10px 20px;
   border: none;
   border-radius: 6px;
