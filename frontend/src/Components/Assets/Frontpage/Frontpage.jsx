@@ -7,11 +7,7 @@ import msteams from "../Sections/msteams.png";
 
 export default function Frontpage() {
   const navigate = useNavigate();
-
-  const [showTips, setShowTips] = React.useState(() => {
-    return !localStorage.getItem("hasReadTips"); 
-  });
-
+  const [showTips, setShowTips] = React.useState(true); 
   const [tipIndex, setTipIndex] = React.useState(0);
 
   const tips = [
@@ -29,7 +25,6 @@ export default function Frontpage() {
     if (tipIndex < tips.length - 1) {
       setTipIndex(tipIndex + 1);
     } else {
-      localStorage.setItem("hasReadTips", "true");
       setShowTips(false);
       setTipIndex(0);
     }
@@ -39,11 +34,12 @@ export default function Frontpage() {
     localStorage.removeItem("accessToken");
     localStorage.removeItem("participantId");
     localStorage.removeItem("userEmail");
-    navigate("/login");
+    navigate("/login"); 
   };
 
   return (
     <div className="frontpage-container">
+      {/* 🔹 Logout Button */}
       <div className="logout-container">
         <button className="logout-button" onClick={handleLogout}>
           Logout
@@ -89,24 +85,14 @@ export default function Frontpage() {
           </div>
         </div>
       </div>
-
       {showTips && (
         <div className="tips-overlay">
           <div className="tips-modal">
             <h2>Tips and Behavior Guide:</h2>
-            <h4 style={{ marginTop: "2px" }}>(Important Please Read)</h4>
+            <h4 style={{ marginTop: "2px"}}>(Important Please Read)</h4>
             <p>{tips[tipIndex]}</p>
 
             <div className="tips-buttons">
-              {localStorage.getItem("hasReadTips") && (
-                <button
-                  onClick={() => setShowTips(false)}
-                  className="skip-btn"
-                  style={{ marginRight: "10px" }}
-                >
-                  Skip
-                </button>
-              )}
               <button onClick={handleNext} className="next-btn">
                 {tipIndex === tips.length - 1 ? "Finish" : "Next"}
               </button>
