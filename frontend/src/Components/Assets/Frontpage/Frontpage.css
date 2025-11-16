@@ -124,3 +124,8 @@
   background: #4c87ff;
   color: white;
 }
+
+.tips-modal p{
+  text-align: justify;
+  letter-spacing: -0.04em
+}
