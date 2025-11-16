@@ -107,8 +107,8 @@
   justify-content: center;
 }
 
-.next-btn {
-  width: 45%;
+.skip-btn, .next-btn {
+  width: 50%;
   padding: 10px 20px;
   border: none;
   border-radius: 6px;
@@ -120,7 +120,7 @@
   background: #ddd;
 }
 
-.next-btn {
+.skip-btn, .next-btn {
   background: #4c87ff;
   color: white;
 }

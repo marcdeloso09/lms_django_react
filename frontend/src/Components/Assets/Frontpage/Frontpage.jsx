@@ -7,8 +7,10 @@ import msteams from "../Sections/msteams.png";
 
 export default function Frontpage() {
   const navigate = useNavigate();
-  const [showTips, setShowTips] = React.useState(true); 
+
+  const [showTips, setShowTips] = React.useState(true);
   const [tipIndex, setTipIndex] = React.useState(0);
+  const [hasFinishedBefore, setHasFinishedBefore] = React.useState(false); // ⭐ NEW
 
   const tips = [
     "Welcome! This interface adapts based on how you interact through scroll, hover and click. this simulation project implemented this behaviors only on the dashboard and inside the contents of each courses/classes for now which aims to reduce the visual overload of contents on Learning Platforms faced by students.",
@@ -21,10 +23,20 @@ export default function Frontpage() {
     "Refresh this page to open the tips again."
   ];
 
+  React.useEffect(() => {
+    const done = localStorage.getItem("tipsFinished");
+    if (done === "true") {
+      setHasFinishedBefore(true);
+    }
+  }, []);
+
   const handleNext = () => {
     if (tipIndex < tips.length - 1) {
       setTipIndex(tipIndex + 1);
     } else {
+      localStorage.setItem("tipsFinished", "true");
+      setHasFinishedBefore(true);
+
       setShowTips(false);
       setTipIndex(0);
     }
@@ -34,12 +46,11 @@ export default function Frontpage() {
     localStorage.removeItem("accessToken");
     localStorage.removeItem("participantId");
     localStorage.removeItem("userEmail");
-    navigate("/login"); 
+    navigate("/login");
   };
 
   return (
     <div className="frontpage-container">
-      {/* 🔹 Logout Button */}
       <div className="logout-container">
         <button className="logout-button" onClick={handleLogout}>
           Logout
@@ -85,17 +96,30 @@ export default function Frontpage() {
           </div>
         </div>
       </div>
+
       {showTips && (
         <div className="tips-overlay">
           <div className="tips-modal">
             <h2>Tips and Behavior Guide:</h2>
-            <h4 style={{ marginTop: "2px"}}>(Important Please Read)</h4>
+            <h4 style={{ marginTop: "2px" }}>(Important Please Read)</h4>
             <p>{tips[tipIndex]}</p>
 
             <div className="tips-buttons">
+
+              {hasFinishedBefore && (
+                <button
+                  onClick={() => setShowTips(false)}
+                  className="skip-btn"
+                  style={{ marginRight: "10px" }}
+                >
+                  Skip
+                </button>
+              )}
+
               <button onClick={handleNext} className="next-btn">
                 {tipIndex === tips.length - 1 ? "Finish" : "Next"}
               </button>
+
             </div>
           </div>
         </div>
