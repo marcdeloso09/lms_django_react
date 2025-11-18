@@ -4,24 +4,15 @@ import "./Frontpage.css";
 import canva from "../Sections/canva.png";
 import blackboard from "../Sections/blackboard.png";
 import msteams from "../Sections/msteams.png";
+import tutorialVideo from '../Sections/tutorial.mp4'
 
 export default function Frontpage() {
   const navigate = useNavigate();
 
   const [showTips, setShowTips] = React.useState(true);
-  const [tipIndex, setTipIndex] = React.useState(0);
-  const [hasFinishedBefore, setHasFinishedBefore] = React.useState(false); // ⭐ NEW
-
-  const tips = [
-    "Welcome! This interface adapts based on how you interact through scroll, hover and click. this simulation project implemented this behaviors only on the dashboard and inside the contents of each courses/classes for now which aims to reduce the visual overload of contents on Learning Platforms faced by students.",
-    "Slow Scroll Speed (<30 px/s): For example, you tend to do a slow reading or navigation inside the platform to properly check everything. The UI will then expand by removing the sidebar to help you prioritize the main content of the page.",
-    "Hover Duration (<3s): Example for this is too many courses/classes enrolled on the platform. Hovering or pointing your mouse cursor for less than 3 seconds over courses, assignments, lessons/modules triggers Focus Mode to help you prioritize what you only want to click",
-    "Click Error Rate (>15%): Example scenario where you are frustrated on so many activities and don't know where to start so you fast click on the empty parts or white spaces of the page to ease your frustration. This will then be counted as wrong/error clicks and when you reach 15% and above you will not be able to click anything on the sidebar helping you to focus more on the main content area.",
-    "Dim Mode activates if you stay active for too long and not doing anything to help reduce visual fatigue.",
-    "You can check this behavior indicators on the tracking panel on the lower right side of each LMS (Learning Management Systems)",
-    "Please kindly don't forget to answer our NASA TLX evaluation form after you have finished the testing. Thank you so much!",
-    "Refresh this page to open the tips again."
-  ];
+  const [hasFinishedBefore, setHasFinishedBefore] = React.useState(false);
+  const [videoFinished, setVideoFinished] = React.useState(false);
+  const VIDEO_DURATION = 253;
 
   React.useEffect(() => {
     const done = localStorage.getItem("tipsFinished");
@@ -30,17 +21,22 @@ export default function Frontpage() {
     }
   }, []);
 
-  const handleNext = () => {
-    if (tipIndex < tips.length - 1) {
-      setTipIndex(tipIndex + 1);
-    } else {
-      localStorage.setItem("tipsFinished", "true");
-      setHasFinishedBefore(true);
-
-      setShowTips(false);
-      setTipIndex(0);
+  React.useEffect(() => {
+    let timer;
+    if (showTips && !hasFinishedBefore) {
+      timer = setTimeout(() => {
+        setVideoFinished(true);
+      }, VIDEO_DURATION * 1000);
     }
+    return () => clearTimeout(timer);
+  }, [showTips, hasFinishedBefore]);
+
+  const handleFinish = () => {
+    localStorage.setItem("tipsFinished", "true");
+    setHasFinishedBefore(true);
+    setShowTips(false);
   };
+
 
   const handleLogout = () => {
     localStorage.removeItem("accessToken");
@@ -100,12 +96,21 @@ export default function Frontpage() {
       {showTips && (
         <div className="tips-overlay">
           <div className="tips-modal">
-            <h2>Tips and Behavior Guide:</h2>
-            <h4 style={{ marginTop: "2px" }}>(Important Please Read)</h4>
-            <p>{tips[tipIndex]}</p>
+            <h2>Tutorial & Behavior Guide</h2>
 
-            <div className="tips-buttons">
+            {/* ------- VIDEO PLAYER ------- */}
+            <video
+              width="100%"
+              controls
+              onEnded={() => setVideoFinished(true)}
+              style={{ borderRadius: "10px", marginTop: "10px" }}
+            >
+              <source src={tutorialVideo} type="video/mp4" />
+              Your browser does not support video playback.
+            </video>
 
+            <div className="tips-buttons" style={{ marginTop: "15px" }}>
+              
               {hasFinishedBefore && (
                 <button
                   onClick={() => setShowTips(false)}
@@ -116,14 +121,19 @@ export default function Frontpage() {
                 </button>
               )}
 
-              <button onClick={handleNext} className="next-btn">
-                {tipIndex === tips.length - 1 ? "Finish" : "Next"}
-              </button>
-
+              {videoFinished && (
+                <button
+                  onClick={handleFinish}
+                  className="next-btn"
+                >
+                  Finish
+                </button>
+              )}
             </div>
           </div>
         </div>
       )}
+
     </div>
   );
 }
