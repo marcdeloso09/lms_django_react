@@ -194,11 +194,11 @@ const handleMouseLeave = useCallback(() => {
     setHoverDuration(finalDuration);
 
     // Always save hover duration — even <3s
-    saveBehavior("Hover Duration Recorded");
+    saveBehavior("Hovering over classes");
 
     // Behavior adaptation ONLY if hover >= 3 sec
     if (finalDuration >= 3) {
-      setAction("Focus Mode Triggered by Hover");
+      setAction("Hovering over classes");
     }
 
     console.log("Hover duration:", finalDuration, "seconds");
