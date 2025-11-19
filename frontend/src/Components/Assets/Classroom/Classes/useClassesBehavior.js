@@ -125,7 +125,7 @@ export default function useClassesBehavior(containerClass = "chat-container") {
       clearTimeout(window.slowScrollTimeout);
 
       window.slowScrollTimeout = setTimeout(async () => {
-        if (easedVelocity < 30) return;
+        if (easedVelocity >= 30) return;
 
         setAction("Slow Scroll Detected");
         if (!window.scrollBehaviorSaved) {
