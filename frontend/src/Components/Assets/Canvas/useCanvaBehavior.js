@@ -146,44 +146,62 @@ useEffect(() => {
   return () => window.removeEventListener("scroll", handleScroll);
 }, [scrollVelocity, triggerEnlargeMode, saveBehavior]);
 
-  // --- HOVER HANDLERS ---
-  const handleMouseEnter = useCallback(
-    (id) => {
-      hoverStartTime.current = Date.now();
-      const hoverInterval = setInterval(() => {
-        const elapsed = ((Date.now() - hoverStartTime.current) / 1000).toFixed(1);
-        setHoverDuration(elapsed);
-      }, 100);
-      window.hoverInterval = hoverInterval;
+   // --- HOVER HANDLERS (REVISED — triggers focus mode ONLY after 3s) ---
+const handleMouseEnter = useCallback(
+  (id) => {
+    hoverStartTime.current = Date.now();
 
-      setTimeout(() => {
+    // Live hover timer updates
+    const hoverInterval = setInterval(() => {
+      const elapsed = ((Date.now() - hoverStartTime.current) / 1000).toFixed(1);
+      setHoverDuration(elapsed);
+    }, 100);
+    window.hoverInterval = hoverInterval;
+
+    // Delay check for focus mode (3 seconds)
+    window.focusCheckTimeout = setTimeout(() => {
+      if (!hoverStartTime.current) return; // user already left
+      const elapsed = (Date.now() - hoverStartTime.current) / 1000;
+
+      if (elapsed >= 3) {
+        // Trigger focus mode only if hovered >=3s
         setFocusMode(true);
-        setFocusedChatIds((prev) => (prev.includes(id) ? prev : [...prev, id]));
+        setFocusedChatIds((prev) =>
+          prev.includes(id) ? prev : [...prev, id]
+        );
         setAction("Focus View");
 
+        // Auto-reset after 10s
         clearTimeout(window.focusTimeout);
         window.focusTimeout = setTimeout(() => {
           setFocusMode(false);
           setFocusedChatIds([]);
           if (!clickModeActive) setAction("Normal Layout");
         }, 10000);
-      }, 3000);
-    },
-    [clickModeActive]
-  );
+      }
+    }, 3000);
+  },
+  [clickModeActive]
+);
 
-  const handleMouseLeave = useCallback(() => {
+const handleMouseLeave = useCallback(() => {
   clearInterval(window.hoverInterval);
+  clearTimeout(window.focusCheckTimeout);
 
   if (hoverStartTime.current) {
     const elapsed = (Date.now() - hoverStartTime.current) / 1000;
-    setHoverDuration(elapsed.toFixed(1));  // update state
-    console.log("🕒 Actual hover duration:", elapsed.toFixed(1), "seconds");
+    const finalDuration = parseFloat(elapsed.toFixed(1));
+    setHoverDuration(finalDuration);
 
-    if (elapsed >= 1) {
-      setAction("Hovering over classes");
-      saveBehavior("Hovering over classes");  // now uses updated hoverDuration
+    // Always save hover duration — even <3s
+    saveBehavior("Hover Duration Recorded");
+
+    // Behavior adaptation ONLY if hover >= 3 sec
+    if (finalDuration >= 3) {
+      setAction("Focus Mode Triggered by Hover");
     }
+
+    console.log("Hover duration:", finalDuration, "seconds");
   }
 
   hoverStartTime.current = null;
