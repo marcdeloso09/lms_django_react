@@ -6,6 +6,7 @@ class UserBehavior(models.Model):
         ("Normal", "Normal"),
         ("Normal Layout", "Normal Layout"),
         ("Slow Scroll Detected", "Slow Scroll Detected"),
+        ("Fast Scroll Detected", "Fast Scroll Detected"),
         ("Hovering over classes", "Hovering over classes"),
         ("Focus View", "Focus View"),
         ("Click Error Mode", "Click Error Mode"),

@@ -95,7 +95,7 @@ def save_behavior(request):
 
     # Define the canonical action categories
     VALID_ACTIONS = [
-        "Normal", "Normal Layout", "Slow Scroll Detected", "Hovering over classes",
+        "Normal", "Normal Layout", "Slow Scroll Detected", "Fast Scroll Detected", "Hovering over classes",
         "Focus View", "Click Error Mode", "UI Dimmed", "UI Restored (User Idle)",
         "Enlarge Mode", "Account Created",
     ]
@@ -105,6 +105,7 @@ def save_behavior(request):
     action_map = {
         "Hovering over element": "Hovering over classes",
         "Scroll Velocity (<30px/s)": "Slow Scroll Detected",
+        "Scroll Velocity (>=30px/s)": "Fast Scroll Detected",
         "Click Error Rate Trigger (>15%)": "Click Error Mode",
         "UI Dimmed": "UI Dimmed",
         "UI Restored (User Idle)": "UI Restored (User Idle)",
