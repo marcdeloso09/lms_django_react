@@ -20,7 +20,7 @@ export default function useUserBehavior(containerClass = "chat-container") {
   const errorClicksRef = useRef(0);
   const idleTimerRef = useRef(null);
   const activeStartTimeRef = useRef(null);
-  const lastScrollSaveRef = useRef(0);
+  const lastFastScrollRef = useRef(0);
 
   // --- SAVE BEHAVIOR (moved up so it’s defined before being used)
  const saveBehavior = useCallback(async (customAction = null) => {

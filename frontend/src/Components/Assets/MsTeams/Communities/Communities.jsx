@@ -25,7 +25,7 @@ export default function Communities({ containerClass = "class-grid-container" })
   const errorClicksRef = useRef(0);
   const idleTimerRef = useRef(null);
   const activeStartTimeRef = useRef(null);
-  const lastScrollSaveRef = useRef(0);
+  const lastFastScrollRef = useRef(0);
 
   // --- Class Data ---
   const classes = [
