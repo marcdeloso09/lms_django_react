@@ -129,12 +129,12 @@ export default function useCanvaBehavior(containerClass = "chat-container") {
       }
 
       // --- SLOW (<30px/s) scroll logic ---
-      if (easedVelocity > 0 && easedVelocity < 30) {
+      else if (easedVelocity > 0 && easedVelocity < 30) {
         clearTimeout(window.slowScrollTimeout);
 
         window.slowScrollTimeout = setTimeout(async () => {
           // FINAL CHECK (use current state value to avoid race)
-          if (scrollVelocity >= 30) return;
+          if (easedVelocity >= 30) return;
 
           setAction("Slow Scroll Detected");
 
