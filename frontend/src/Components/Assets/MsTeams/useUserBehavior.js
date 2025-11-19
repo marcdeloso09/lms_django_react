@@ -76,86 +76,75 @@ export default function useUserBehavior(containerClass = "chat-container") {
     }, 10000);
   }, [clickModeActive, focusMode, containerClass]);
 
- useEffect(() => {
-    const handleScroll = () => {
-      const currentY = window.scrollY;
-      const currentTime = Date.now();
-      const dy = Math.abs(currentY - lastScrollY.current);
-      const dt = (currentTime - lastTime.current) / 1000;
+// --- SCROLL DETECTION ---
+useEffect(() => {
+  const handleScroll = () => {
+    const currentY = window.scrollY;
+    const currentTime = Date.now();
+    const dy = Math.abs(currentY - lastScrollY.current);
+    const dt = (currentTime - lastTime.current) / 1000;
 
-      let rawVelocity = dt > 0 ? dy / dt : 0;
+    let rawVelocity = dt > 0 ? dy / dt : 0;
+    rawVelocity = Math.min(rawVelocity, 100);
 
-      // --- HARD CAP at 100 px/s ---
-      rawVelocity = Math.min(rawVelocity, 100);
+    const maxVelocity = 50;
+    const smoothingFactor = 0.05;
 
-      // --- SLOWER SMOOTHING ---
-      const maxVelocity = 50;
-      const smoothingFactor = 0.05;
+    const easedVelocity =
+      rawVelocity > maxVelocity
+        ? scrollVelocity + (maxVelocity - scrollVelocity) * smoothingFactor
+        : scrollVelocity + (rawVelocity - scrollVelocity) * smoothingFactor;
 
-      const easedVelocity =
-        rawVelocity > maxVelocity
-          ? scrollVelocity + (maxVelocity - scrollVelocity) * smoothingFactor
-          : scrollVelocity + (rawVelocity - scrollVelocity) * smoothingFactor;
+    setScrollVelocity(easedVelocity);
 
-      setScrollVelocity(easedVelocity);
+    lastScrollY.current = currentY;
+    lastTime.current = currentTime;
 
-      lastScrollY.current = currentY;
-      lastTime.current = currentTime;
+    // Reset per scroll burst
+    clearTimeout(window.scrollResetTimeout);
+    window.scrollResetTimeout = setTimeout(() => {
+      setScrollVelocity(0);
+    }, 2000);
 
-      // --- Reset per scroll burst ---
-      clearTimeout(window.scrollResetTimeout);
-      window.scrollResetTimeout = setTimeout(() => {
-        setScrollVelocity(0);
-      }, 2000);
+    // --- FAST SCROLL (>=30px/s) ---
+    if (easedVelocity >= 30) {
+      clearTimeout(window.slowScrollTimeout);
+      setAction("Fast Scroll Detected");
 
-      // ---------- FAST SCROLL (>= 30px/s) ----------
-      if (easedVelocity >= 30) {
-        // cancel any pending slow-scroll trigger
-        clearTimeout(window.slowScrollTimeout);
+      // Save if the velocity changed enough since last save
+      if (Math.abs(easedVelocity - lastFastScrollRef.current) > 2) {
+        lastFastScrollRef.current = easedVelocity;
+        saveBehavior(`Scroll Velocity (>=30px/s): ${easedVelocity.toFixed(1)} px/s`);
+      }
 
-        // set UI action for fast scroll (you can change the label)
-        setAction("Fast Scroll Detected");
+      return;
+    }
 
-        // rate-limit saves for fast scrolls (4s cooldown)
-        const now = Date.now();
-        if (now - lastScrollSaveRef.current > 4000) {
-          lastScrollSaveRef.current = now;
-          // non-blocking save; include velocity value if you want
-          saveBehavior("Scroll Velocity (>=30px/s)");
+    // --- SLOW (<30px/s) ---
+    else if (easedVelocity > 0 && easedVelocity < 30) {
+      clearTimeout(window.slowScrollTimeout);
+
+      window.slowScrollTimeout = setTimeout(async () => {
+        if (easedVelocity >= 30) return;
+
+        setAction("Slow Scroll Detected");
+        if (!window.scrollBehaviorSaved) {
+          await saveBehavior(`Scroll Velocity (<30px/s): ${easedVelocity.toFixed(1)} px/s`);
+          triggerEnlargeMode();
+
+          window.scrollBehaviorSaved = true;
+          setTimeout(() => (window.scrollBehaviorSaved = false), 4000);
         }
+      }, 2000);
+    }
+  };
 
-        // return because we don't want slow-scroll logic below to run
-        return;
-      }
+  lastScrollY.current = window.scrollY;
+  lastTime.current = Date.now();
 
-      // --- SLOW (<30px/s) scroll logic ---
-      else if (easedVelocity > 0 && easedVelocity < 30) {
-        clearTimeout(window.slowScrollTimeout);
-
-        window.slowScrollTimeout = setTimeout(async () => {
-          // FINAL CHECK (use current state value to avoid race)
-          if (easedVelocity >= 30) return;
-
-          setAction("Slow Scroll Detected");
-
-          // Save only once per trigger period (existing window flag)
-          if (!window.scrollBehaviorSaved) {
-            await saveBehavior("Scroll Velocity (<30px/s)");
-            triggerEnlargeMode();
-
-            window.scrollBehaviorSaved = true;
-            setTimeout(() => (window.scrollBehaviorSaved = false), 4000);
-          }
-        }, 2000);
-      }
-    };
-
-    lastScrollY.current = window.scrollY;
-    lastTime.current = Date.now();
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [scrollVelocity, triggerEnlargeMode, saveBehavior]);
+  window.addEventListener("scroll", handleScroll, { passive: true });
+  return () => window.removeEventListener("scroll", handleScroll);
+}, [scrollVelocity, triggerEnlargeMode, saveBehavior]);
 
   // --- HOVER HANDLERS (REVISED — triggers focus mode ONLY after 3s) ---
 const handleMouseEnter = useCallback(
