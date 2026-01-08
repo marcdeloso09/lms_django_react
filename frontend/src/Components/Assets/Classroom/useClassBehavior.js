@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { useLocation } from "react-router-dom";
 
 export default function useClassBehavior(containerClass = "class-container") {
   const [scrollVelocity, setScrollVelocity] = useState(0);
