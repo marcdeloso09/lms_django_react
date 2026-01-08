@@ -1,9 +1,11 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import "./Communities.css";
 
 export default function Communities({ containerClass = "class-grid-container" }) {
   const navigate = useNavigate();
+  const location = useLocation();
 
   // --- States ---
   const [scrollVelocity, setScrollVelocity] = useState(0);
@@ -37,6 +39,24 @@ export default function Communities({ containerClass = "class-grid-container" })
     { id: 6, title: "Physics", teacher: "Dr." },
     { id: 7, title: "Statistics", teacher: "Prof." },
   ];
+  const resolvePageType = (pathname) => {
+    if (pathname.startsWith("/classroom")) {
+      return `Classroom / ${pathname.split("/")[2] || "Home"}`;
+    }
+    if (pathname.startsWith("/canvas")) {
+      return `Canvas / ${pathname.split("/")[2] || "Dashboard"}`;
+    }
+    if (pathname.startsWith("/msteams")) {
+      return `MS Teams / ${pathname.split("/")[2] || "Communities"}`;
+    }
+    return "Unknown";
+  };
+
+  useEffect(() => {
+    const pageType = resolvePageType(location.pathname);
+
+    saveBehavior("Page Navigated", pageType);
+  }, [location.pathname]);
 
   // --- Save Behavior Log ---
   const saveBehavior = useCallback(async (customAction = null) => {
@@ -67,12 +87,12 @@ export default function Communities({ containerClass = "class-grid-container" })
 
     if (!res.ok) {
       const errText = await res.text();
-      console.error("❌ Failed to save behavior:", res.status, errText);
+      console.error("Failed to save behavior:", res.status, errText);
     } else {
-      console.log("✅ Behavior saved:", payload);
+      console.log("Behavior saved:", payload);
     }
   } catch (err) {
-    console.error("⚠️ Error in saveBehavior:", err);
+    console.error("Error in saveBehavior:", err);
   }
 }, [scrollVelocity, hoverDuration, clickErrorRate, focusMode, action]);
 
@@ -117,18 +137,15 @@ useEffect(() => {
     lastScrollY.current = currentY;
     lastTime.current = currentTime;
 
-    // Reset per scroll burst
     clearTimeout(window.scrollResetTimeout);
     window.scrollResetTimeout = setTimeout(() => {
       setScrollVelocity(0);
     }, 2000);
 
-    // --- FAST SCROLL (>=30px/s) ---
     if (easedVelocity >= 30) {
       clearTimeout(window.slowScrollTimeout);
       setAction("Fast Scroll Detected");
 
-      // Save if the velocity changed enough since last save
       if (Math.abs(easedVelocity - lastFastScrollRef.current) > 2) {
         lastFastScrollRef.current = easedVelocity;
         saveBehavior(`Scroll Velocity (>=30px/s): ${easedVelocity.toFixed(1)} px/s`);
@@ -163,12 +180,10 @@ useEffect(() => {
   return () => window.removeEventListener("scroll", handleScroll);
 }, [scrollVelocity, triggerEnlargeMode, saveBehavior]);
 
-   // --- HOVER HANDLERS (REVISED — triggers focus mode ONLY after 3s) ---
 const handleMouseEnter = useCallback(
   (id) => {
     hoverStartTime.current = Date.now();
 
-    // Live hover timer updates
     const hoverInterval = setInterval(() => {
       const elapsed = ((Date.now() - hoverStartTime.current) / 1000).toFixed(1);
       setHoverDuration(elapsed);
@@ -210,10 +225,8 @@ const handleMouseLeave = useCallback(() => {
     const finalDuration = parseFloat(elapsed.toFixed(1));
     setHoverDuration(finalDuration);
 
-    // Always save hover duration — even <3s
     saveBehavior("Hovering over classes");
 
-    // Behavior adaptation ONLY if hover >= 3 sec
     if (finalDuration >= 3) {
       setAction("Hovering over classes");
     }

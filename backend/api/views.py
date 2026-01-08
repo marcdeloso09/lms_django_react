@@ -131,6 +131,7 @@ def save_behavior(request):
         click_error_rate=data.get("click_error_rate", 0),
         focus_mode=data.get("focus_mode", "Inactive"),
         action=action,
+        page_type=data.get("page_type", "Unknown"),
     )
 
     return Response({"message": "Behavior saved successfully"}, status=201)

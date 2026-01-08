@@ -14,16 +14,19 @@ class UserBehavior(models.Model):
         ("UI Restored (User Idle)", "UI Restored (User Idle)"),
         ("Enlarge Mode", "Enlarge Mode"),
         ("Account Created", "Account Created"),
+        ("Page Navigated", "Page Navigated"),
     ]
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="behaviors")
     participant_id = models.CharField(max_length=10)
+    page_type = models.CharField(max_length=50, default="Unknown")
     scroll_velocity = models.FloatField()
     hover_duration = models.CharField(max_length=10)  # "3s"
     click_error_rate = models.FloatField()
     focus_mode = models.CharField(max_length=10)  # "Active" / "Inactive"
     action = models.CharField(max_length=50, choices=ACTION_CHOICES)
+    page_type = models.CharField(max_length=50, default="Unknown")
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.participant_id} | {self.scroll_velocity} | {self.hover_duration} | {self.click_error_rate}"
+        return f"{self.participant_id} | {self.scroll_velocity} | {self.hover_duration} | {self.click_error_rate} | {self.page_type}"

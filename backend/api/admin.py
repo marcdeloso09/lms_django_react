@@ -9,6 +9,7 @@ class UserBehaviorAdmin(admin.ModelAdmin):
         "id",
         "user",
         "participant_id",
+        "page_type",
         "scroll_velocity",
         "hover_duration",
         "click_error_rate",
@@ -16,8 +17,8 @@ class UserBehaviorAdmin(admin.ModelAdmin):
         "action",
         "timestamp",
     )
-    list_filter = ("action", "focus_mode", "timestamp")
-    search_fields = ("participant_id", "user__username", "action")
+    list_filter = ("action", "focus_mode", "timestamp", "page_type")
+    search_fields = ("participant_id", "user__username", "page_type", "action")
     actions = ["export_as_csv"]
 
     def export_as_csv(self, request, queryset):
@@ -28,7 +29,7 @@ class UserBehaviorAdmin(admin.ModelAdmin):
         
         # Header
         writer.writerow([
-            "User", "Participant ID", "Scroll Velocity", "Hover Duration",
+            "User", "Participant ID", "Page Type", "Scroll Velocity", "Hover Duration",
             "Click Error Rate", "Focus Mode", "Action", "Timestamp"
         ])
 
@@ -37,6 +38,7 @@ class UserBehaviorAdmin(admin.ModelAdmin):
             writer.writerow([
                 behavior.user.username,
                 behavior.participant_id,
+                behavior.page_type,
                 behavior.scroll_velocity,
                 behavior.hover_duration,
                 behavior.click_error_rate,
