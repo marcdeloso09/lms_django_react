@@ -19,7 +19,7 @@ class UserBehavior(models.Model):
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="behaviors")
     participant_id = models.CharField(max_length=10)
-    page_type = models.CharField(max_length=50, default="Unknown")
+    page_type = models.CharField(max_length=100, blank=True, null=True)
     scroll_velocity = models.FloatField()
     hover_duration = models.CharField(max_length=10)  # "3s"
     click_error_rate = models.FloatField()
